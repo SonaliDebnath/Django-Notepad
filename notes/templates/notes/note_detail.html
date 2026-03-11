@@ -1,0 +1,37 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="detail-container animate-in">
+    <div class="page-header">
+        <a href="{% url 'note_list' %}" class="btn btn-ghost btn-sm">&larr; Back</a>
+    </div>
+
+    <div class="detail-card">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span class="color-tag color-{{ note.color_tag }}"></span>
+            {% if note.pinned %}<span style="font-size: 14px;">&#128204;</span>{% endif %}
+        </div>
+
+        <h1 class="detail-title">{{ note.title }}</h1>
+
+        <div class="detail-meta">
+            <span class="note-card-date">Created {{ note.created_at|date:"M d, Y &middot; h:i A" }}</span>
+            <span class="note-card-date">Updated {{ note.updated_at|date:"M d, Y &middot; h:i A" }}</span>
+            <span class="word-count">{{ note.word_count }} words</span>
+        </div>
+
+        <div class="detail-body">{{ note.body }}</div>
+
+        <div class="detail-actions">
+            <a href="{% url 'note_edit' note.pk %}" class="btn btn-primary btn-sm">Edit</a>
+            <form method="post" action="{% url 'note_toggle_pin' note.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-sm">
+                    {% if note.pinned %}Unpin{% else %}Pin{% endif %}
+                </button>
+            </form>
+            <a href="{% url 'note_delete' note.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

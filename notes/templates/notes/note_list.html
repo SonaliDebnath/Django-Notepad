@@ -1,0 +1,110 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <div>
+        <h1 class="page-title">Your <span class="highlight">Notes</span></h1>
+    </div>
+    <span class="note-count">
+        <span class="live-dot"></span>&nbsp;&nbsp;{{ total }} note{{ total|pluralize }}
+    </span>
+</div>
+
+{% if query %}
+    <div class="section-label">
+        <span class="dot dot-blue"></span> Search results for "{{ query }}"
+    </div>
+{% endif %}
+
+{% if pinned_notes %}
+    <div class="section-label">
+        <span class="dot dot-orange"></span> Pinned
+    </div>
+    <div class="notes-grid">
+        {% for note in pinned_notes %}
+        <div class="note-card tag-{{ note.color_tag }}">
+            <div class="note-card-header">
+                <div class="note-card-title-row">
+                    <span class="color-tag color-{{ note.color_tag }}"></span>
+                    <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+                        <h3 class="note-card-title">{{ note.title }}</h3>
+                    </a>
+                    <span class="pin-icon">&#128204;</span>
+                </div>
+            </div>
+            <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+                <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
+            </a>
+            <div class="note-card-meta">
+                <div class="note-card-info">
+                    <span class="note-card-date">{{ note.updated_at|date:"M d, Y" }}</span>
+                    <span class="word-count">{{ note.word_count }} words</span>
+                </div>
+                <div class="note-card-actions">
+                    <form method="post" action="{% url 'note_toggle_pin' note.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-link action-pin" style="border:none;cursor:pointer;">unpin</button>
+                    </form>
+                    <a href="{% url 'note_edit' note.pk %}" class="action-link action-edit">edit</a>
+                    <a href="{% url 'note_delete' note.pk %}" class="action-link action-delete">delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if notes %}
+    <div class="section-label">
+        <span class="dot dot-blue"></span> {% if pinned_notes %}Other Notes{% else %}All Notes{% endif %}
+    </div>
+    <div class="notes-grid">
+        {% for note in notes %}
+        <div class="note-card tag-{{ note.color_tag }}">
+            <div class="note-card-header">
+                <div class="note-card-title-row">
+                    <span class="color-tag color-{{ note.color_tag }}"></span>
+                    <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+                        <h3 class="note-card-title">{{ note.title }}</h3>
+                    </a>
+                </div>
+            </div>
+            <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+                <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
+            </a>
+            <div class="note-card-meta">
+                <div class="note-card-info">
+                    <span class="note-card-date">{{ note.updated_at|date:"M d, Y" }}</span>
+                    <span class="word-count">{{ note.word_count }} words</span>
+                </div>
+                <div class="note-card-actions">
+                    <form method="post" action="{% url 'note_toggle_pin' note.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-link action-pin" style="border:none;cursor:pointer;">pin</button>
+                    </form>
+                    <a href="{% url 'note_edit' note.pk %}" class="action-link action-edit">edit</a>
+                    <a href="{% url 'note_delete' note.pk %}" class="action-link action-delete">delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if not notes and not pinned_notes %}
+    <div class="empty-state animate-in">
+        <div class="empty-state-icon">&#128221;</div>
+        <h2>{% if query %}No notes found{% else %}No notes yet{% endif %}</h2>
+        <p>{% if query %}Try a different search term.{% else %}Create your first note and start capturing your thoughts.{% endif %}</p>
+        {% if not query %}
+            <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<hr class="glow-divider">
+<div style="text-align: center; padding: 8px 0;">
+    <span class="kbd">Ctrl</span> + <span class="kbd">N</span>
+    <span style="color: var(--text-muted); font-size: 11px; margin-left: 4px;">New Note</span>
+</div>
+{% endblock %}

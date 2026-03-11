@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoNote - {% block title %}Welcome{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #f5f5f0;
+            --accent-blue: #0096c7;
+            --accent-purple: #7b5cff;
+            --accent-cyan: #00b4d8;
+            --accent-green: #00b368;
+            --text-primary: #1a1a2e;
+            --text-secondary: #555566;
+            --text-muted: #888899;
+            --border-glass: rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 150, 199, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 150, 199, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px; right: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(123, 92, 255, 0.06) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+            animation: orbFloat 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-80px, 80px); }
+        }
+
+        .auth-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .auth-brand h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-brand h1 span {
+            -webkit-text-fill-color: var(--accent-cyan);
+            font-weight: 400;
+        }
+
+        .auth-brand p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 36px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.1);
+        }
+
+        .form-input::placeholder { color: var(--text-muted); }
+
+        .btn-auth {
+            width: 100%;
+            padding: 13px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 150, 199, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .btn-auth:hover {
+            box-shadow: 0 6px 25px rgba(0, 150, 199, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-auth::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-auth:hover::before { left: 100%; }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: var(--accent-purple);
+        }
+
+        .error-msg {
+            background: rgba(232, 32, 58, 0.08);
+            border: 1px solid rgba(232, 32, 58, 0.15);
+            color: #c0203a;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 24px; }
+            .auth-brand h1 { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-brand">
+            <h1>Neo<span>Note</span></h1>
+            <p>Your premium note-taking companion</p>
+        </div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

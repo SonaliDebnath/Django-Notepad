@@ -1,0 +1,64 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="form-container animate-in">
+    <div class="page-header">
+        <h1 class="page-title">{% if note %}<span class="highlight">Edit</span> Note{% else %}<span class="highlight">New</span> Note{% endif %}</h1>
+    </div>
+
+    <form method="post" class="glass-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" name="title" id="title" class="form-input"
+                   placeholder="Give your note a title..."
+                   value="{{ note.title|default:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="body" class="form-label">Content</label>
+            <textarea name="body" id="body" class="form-input"
+                      placeholder="Start writing..." required>{{ note.body|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Color Tag</label>
+            <div class="color-picker">
+                <label class="color-option co-blue {% if not note or note.color_tag == 'blue' %}selected{% endif %}" id="opt-blue">
+                    <input type="radio" name="color_tag" value="blue" {% if not note or note.color_tag == 'blue' %}checked{% endif %} onchange="selectColor('blue')">
+                </label>
+                <label class="color-option co-purple {% if note.color_tag == 'purple' %}selected{% endif %}" id="opt-purple">
+                    <input type="radio" name="color_tag" value="purple" {% if note.color_tag == 'purple' %}checked{% endif %} onchange="selectColor('purple')">
+                </label>
+                <label class="color-option co-cyan {% if note.color_tag == 'cyan' %}selected{% endif %}" id="opt-cyan">
+                    <input type="radio" name="color_tag" value="cyan" {% if note.color_tag == 'cyan' %}checked{% endif %} onchange="selectColor('cyan')">
+                </label>
+                <label class="color-option co-pink {% if note.color_tag == 'pink' %}selected{% endif %}" id="opt-pink">
+                    <input type="radio" name="color_tag" value="pink" {% if note.color_tag == 'pink' %}checked{% endif %} onchange="selectColor('pink')">
+                </label>
+                <label class="color-option co-green {% if note.color_tag == 'green' %}selected{% endif %}" id="opt-green">
+                    <input type="radio" name="color_tag" value="green" {% if note.color_tag == 'green' %}checked{% endif %} onchange="selectColor('green')">
+                </label>
+                <label class="color-option co-orange {% if note.color_tag == 'orange' %}selected{% endif %}" id="opt-orange">
+                    <input type="radio" name="color_tag" value="orange" {% if note.color_tag == 'orange' %}checked{% endif %} onchange="selectColor('orange')">
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if note %}Update Note{% else %}Create Note{% endif %}
+            </button>
+            <a href="{% url 'note_list' %}" class="cancel-link">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function selectColor(color) {
+    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('opt-' + color).classList.add('selected');
+}
+</script>
+{% endblock %}
