@@ -10,6 +10,7 @@
         <div style="display: flex; align-items: center; margin-bottom: 8px;">
             <span class="color-tag color-{{ note.color_tag }}"></span>
             {% if note.pinned %}<span style="font-size: 14px;">&#128204;</span>{% endif %}
+            {% if note.is_shared %}<span style="font-size: 14px; margin-left: 4px;">&#128279;</span>{% endif %}
         </div>
 
         <h1 class="detail-title">{{ note.title }}</h1>
@@ -22,6 +23,17 @@
 
         <div class="detail-body">{{ note.body }}</div>
 
+        <!-- SHARE LINK -->
+        {% if share_url %}
+        <div class="share-box">
+            <span class="budget-bar-title">Shareable Link</span>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+                <input type="text" value="{{ share_url }}" class="form-input" style="font-size: 12px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace;" id="shareUrl" readonly>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.textContent='Copied!';">Copy</button>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="detail-actions">
             <a href="{% url 'note_edit' note.pk %}" class="btn btn-primary btn-sm">Edit</a>
             <form method="post" action="{% url 'note_toggle_pin' note.pk %}" style="display:inline;">
@@ -30,8 +42,24 @@
                     {% if note.pinned %}Unpin{% else %}Pin{% endif %}
                 </button>
             </form>
+            <form method="post" action="{% url 'note_toggle_share' note.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-sm">
+                    {% if note.is_shared %}&#128274; Unshare{% else %}&#128279; Share{% endif %}
+                </button>
+            </form>
             <a href="{% url 'note_delete' note.pk %}" class="btn btn-danger btn-sm">Delete</a>
         </div>
     </div>
 </div>
+
+<style>
+    .share-box {
+        margin-top: 24px;
+        padding: 16px 20px;
+        background: rgba(0, 150, 199, 0.05);
+        border: 1px solid rgba(0, 150, 199, 0.15);
+        border-radius: var(--radius-sm);
+    }
+</style>
 {% endblock %}

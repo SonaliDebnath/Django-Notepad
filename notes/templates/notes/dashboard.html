@@ -1,16 +1,128 @@
 {% extends "notes/base.html" %}
 
 {% block content %}
+<!-- SKELETON -->
+<div id="skeleton-dashboard">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px;">
+        <div><div class="skeleton skeleton-title" style="width: 250px; height: 32px;"></div><div class="skeleton skeleton-text short" style="margin-top: 8px;"></div></div>
+        <div class="skeleton" style="width: 120px; height: 40px; border-radius: 50px;"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+        <div class="skeleton skeleton-stat"></div>
+        <div class="skeleton skeleton-stat"></div>
+        <div class="skeleton skeleton-stat"></div>
+    </div>
+    <div class="notes-grid">
+        <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+    </div>
+</div>
+
+<!-- REAL CONTENT -->
+<div id="real-dashboard" style="display:none;">
 <div class="animate-in">
     <div class="page-header">
         <div>
             <h1 class="page-title">Hey, <span class="highlight">{{ request.user.username }}</span></h1>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Here's your notes overview</p>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Here's your overview</p>
         </div>
-        <a href="{% url 'note_create' %}" class="btn btn-primary">+ New Note</a>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'expense_create' %}" class="btn btn-ghost btn-sm">+ Expense</a>
+            <a href="{% url 'note_create' %}" class="btn btn-primary">+ New Note</a>
+        </div>
     </div>
 
-    <!-- STATS CARDS -->
+    <!-- ===== BUDGET PROGRESS BAR ===== -->
+    {% if budget_limit > 0 %}
+    <div class="budget-bar-wrapper">
+        <div class="budget-bar-header">
+            <span class="budget-bar-title">Monthly Budget</span>
+            <span class="budget-bar-amount" style="color: {% if budget_percentage >= 90 %}#e8203a{% elif budget_percentage >= 75 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+                &#8377;{{ monthly_spending }} / &#8377;{{ budget_limit }} ({{ budget_percentage }}%)
+            </span>
+        </div>
+        <div class="budget-bar-track">
+            <div class="budget-bar-fill {% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}" style="width: {{ budget_percentage }}%;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== EXPENSE STATS ===== -->
+    <div class="section-label">
+        <span class="dot dot-orange"></span> Expense Overview
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+        <div class="stat-card">
+            <div class="stat-number expense-gradient">&#8377;{{ monthly_spending }}</div>
+            <div class="stat-label">{{ current_month }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number expense-gradient">&#8377;{{ total_spending }}</div>
+            <div class="stat-label">All Time Spending</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number expense-gradient">{{ expense_count }}</div>
+            <div class="stat-label">Total Expenses</div>
+        </div>
+    </div>
+    {% if top_category %}
+    <div style="margin-bottom: 24px;">
+        <span class="top-cat-badge">Top category this month: <strong>{{ top_category }}</strong></span>
+    </div>
+    {% endif %}
+
+    <!-- ===== SPENDING CHART ===== -->
+    {% if category_data %}
+    <div class="section-label" style="margin-top: 24px;">
+        <span class="dot dot-orange"></span> Spending Breakdown ({{ current_month }})
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+        <!-- BAR CHART -->
+        <div class="chart-card">
+            <div class="bar-chart">
+                {% for item in category_data %}
+                <div class="bar-group">
+                    <div class="bar-value">{{ item.percentage }}%</div>
+                    <div class="bar" style="--bar-height: {{ item.percentage }}%; --bar-color: var(--accent-{{ item.color }});">
+                        <div class="bar-fill"></div>
+                    </div>
+                    <div class="bar-label">{{ item.label }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- DONUT CHART -->
+        <div class="chart-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div class="donut-chart" style="background: conic-gradient({{ conic_gradient }});">
+                <div class="donut-hole">
+                    <span style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text-primary);">&#8377;{{ monthly_spending }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);">THIS MONTH</span>
+                </div>
+            </div>
+            <div class="donut-legend">
+                {% for item in category_data %}
+                <div class="legend-item">
+                    <span class="legend-dot" style="background: var(--accent-{{ item.color }});"></span>
+                    <span>{{ item.label }}</span>
+                    <span style="margin-left:auto; font-weight:600;">&#8377;{{ item.amount|floatformat:0 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="text-align: center; margin-bottom: 40px;">
+        <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm">View All Expenses &rarr;</a>
+    </div>
+
+    <hr class="glow-divider">
+
+    <!-- ===== NOTES STATS ===== -->
+    <div class="section-label">
+        <span class="dot dot-blue"></span> Notes Overview
+    </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
         <div class="stat-card">
             <div class="stat-number">{{ total }}</div>
@@ -42,7 +154,37 @@
     </div>
     {% endif %}
 
-    <!-- RECENT NOTES -->
+    <hr class="glow-divider">
+
+    <!-- ===== RECENT EXPENSES ===== -->
+    {% if recent_expenses %}
+    <div class="section-label">
+        <span class="dot dot-orange"></span> Recent Expenses
+    </div>
+    <div class="notes-grid" style="margin-bottom: 32px;">
+        {% for expense in recent_expenses %}
+        <div class="note-card tag-{% cycle 'orange' 'purple' 'cyan' 'pink' 'green' %}">
+            <div class="note-card-header">
+                <div class="note-card-title-row">
+                    <h3 class="note-card-title">{{ expense.title }}</h3>
+                    {% if expense.recurrence != 'none' %}<span style="font-size:12px; margin-left:6px;" title="Recurring">&#128260;</span>{% endif %}
+                </div>
+            </div>
+            <p class="note-card-body" style="-webkit-line-clamp: 2;">
+                {{ expense.get_category_display }}{% if expense.note %} &middot; {{ expense.note|truncatewords:8 }}{% endif %}
+            </p>
+            <div class="note-card-meta">
+                <div class="note-card-info">
+                    <span class="note-card-date">{{ expense.date|date:"M d, Y" }}</span>
+                </div>
+                <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent-orange);">&#8377;{{ expense.amount }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== RECENT NOTES ===== -->
     {% if recent %}
     <div class="section-label">
         <span class="dot dot-blue"></span> Recent Notes
@@ -57,6 +199,7 @@
                         <h3 class="note-card-title">{{ note.title }}</h3>
                     </a>
                     {% if note.pinned %}<span class="pin-icon">&#128204;</span>{% endif %}
+                    {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
                 </div>
             </div>
             <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
@@ -74,30 +217,36 @@
     <div style="text-align: center; margin-top: 8px;">
         <a href="{% url 'note_list' %}" class="btn btn-ghost btn-sm">View All Notes &rarr;</a>
     </div>
-    {% else %}
+    {% endif %}
+
+    {% if not recent and not recent_expenses %}
     <div class="empty-state">
         <div class="empty-state-icon">&#128221;</div>
-        <h2>No notes yet</h2>
-        <p>Create your first note to get started.</p>
-        <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
+        <h2>Nothing here yet</h2>
+        <p>Create a note or add an expense to get started.</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="{% url 'expense_create' %}" class="btn btn-ghost">+ Add Expense</a>
+            <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
+        </div>
     </div>
     {% endif %}
+</div>
 </div>
 
 <style>
     .stat-card {
-        background: rgba(255, 255, 255, 0.75);
-        border: 1px solid rgba(0, 0, 0, 0.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border-glass);
         border-radius: 14px;
         padding: 24px;
         text-align: center;
         backdrop-filter: blur(10px);
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+        box-shadow: var(--shadow-soft);
         transition: all 0.3s ease;
     }
     .stat-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-hover);
     }
     .stat-number {
         font-family: 'Space Grotesk', sans-serif;
@@ -106,6 +255,11 @@
         background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .stat-number.expense-gradient {
+        background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+        -webkit-background-clip: text;
         background-clip: text;
     }
     .stat-label {
@@ -120,10 +274,126 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(0, 0, 0, 0.07);
+        background: var(--input-bg);
+        border: 1px solid var(--border-glass);
         border-radius: 50px;
         padding: 8px 16px;
     }
+    .top-cat-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--text-secondary);
+        background: rgba(224, 120, 0, 0.08);
+        border: 1px solid rgba(224, 120, 0, 0.15);
+        padding: 6px 16px;
+        border-radius: 50px;
+    }
+    .top-cat-badge strong { color: var(--accent-orange); }
+
+    /* CHARTS */
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius);
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-soft);
+    }
+    .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 16px;
+        height: 200px;
+        padding-top: 20px;
+    }
+    .bar-group { text-align: center; flex: 1; max-width: 60px; }
+    .bar {
+        height: 160px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin: 4px auto;
+        width: 32px;
+    }
+    .bar-fill {
+        width: 100%;
+        height: var(--bar-height);
+        background: var(--bar-color);
+        border-radius: 6px 6px 2px 2px;
+        animation: growBar 0.8s ease forwards;
+        opacity: 0.85;
+        transition: opacity 0.2s;
+    }
+    .bar-fill:hover { opacity: 1; }
+    .bar-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--text-muted);
+    }
+    .bar-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    @keyframes growBar {
+        from { height: 0; }
+    }
+
+    .donut-chart {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .donut-hole {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 110px; height: 110px;
+        background: var(--bg-card);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+    }
+    .donut-legend {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    .legend-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('skeleton-dashboard').style.display = 'none';
+        document.getElementById('real-dashboard').style.display = 'block';
+    });
+</script>
 {% endblock %}

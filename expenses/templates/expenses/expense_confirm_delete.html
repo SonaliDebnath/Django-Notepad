@@ -1,0 +1,17 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="delete-card">
+        <h2>Delete Expense?</h2>
+        <p>Are you sure you want to delete <span class="note-name">"{{ expense.title }}"</span> (&#8377;{{ expense.amount }})?</p>
+        <div class="form-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+            <a href="{% url 'expense_list' %}" class="cancel-link">Cancel</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

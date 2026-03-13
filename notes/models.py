@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -17,6 +18,8 @@ class Note(models.Model):
     body = models.TextField()
     color_tag = models.CharField(max_length=10, choices=COLOR_CHOICES, default='blue')
     pinned = models.BooleanField(default=False)
+    share_token = models.UUIDField(null=True, blank=True, unique=True)
+    is_shared = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,132 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Expense <span class="highlight">Summary</span></h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Overview of your spending</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm">All Expenses</a>
+            <a href="{% url 'expense_create' %}" class="btn btn-primary">+ Add Expense</a>
+        </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+        <div class="stat-card">
+            <div class="stat-number">&#8377;{{ monthly_total }}</div>
+            <div class="stat-label">{{ current_month }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">&#8377;{{ overall_total }}</div>
+            <div class="stat-label">All Time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_count }}</div>
+            <div class="stat-label">Total Expenses</div>
+        </div>
+    </div>
+
+    <!-- CATEGORY BREAKDOWN -->
+    {% if category_totals %}
+    <div class="section-label">
+        <span class="dot dot-blue"></span> Spending by Category
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 40px;">
+        {% for label, amount in category_totals.items %}
+        <div class="cat-card">
+            <span style="font-size: 14px; color: var(--text-primary); font-weight: 500;">{{ label }}</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: var(--accent-blue);">&#8377;{{ amount }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- RECENT EXPENSES -->
+    {% if recent %}
+    <div class="section-label">
+        <span class="dot dot-orange"></span> Recent Expenses
+    </div>
+    <div class="notes-grid">
+        {% for expense in recent %}
+        <div class="note-card tag-{% cycle 'blue' 'purple' 'cyan' 'pink' 'green' %}">
+            <div class="note-card-header">
+                <div class="note-card-title-row">
+                    <h3 class="note-card-title">{{ expense.title }}</h3>
+                </div>
+            </div>
+            <p class="note-card-body" style="-webkit-line-clamp: 2;">
+                {{ expense.get_category_display }}{% if expense.note %} &middot; {{ expense.note|truncatewords:10 }}{% endif %}
+            </p>
+            <div class="note-card-meta">
+                <div class="note-card-info">
+                    <span class="note-card-date">{{ expense.date|date:"M d, Y" }}</span>
+                </div>
+                <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent-blue);">&#8377;{{ expense.amount }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 8px;">
+        <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm">View All Expenses &rarr;</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">&#128176;</div>
+        <h2>No expenses yet</h2>
+        <p>Start tracking your spending to see insights here.</p>
+        <a href="{% url 'expense_create' %}" class="btn btn-primary">+ Add Expense</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .stat-card {
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 14px;
+        padding: 24px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    .stat-number {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .stat-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-top: 6px;
+    }
+    .cat-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: all 0.2s ease;
+    }
+    .cat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+</style>
+{% endblock %}

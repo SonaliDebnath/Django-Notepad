@@ -33,6 +33,39 @@
             --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
             --radius: 14px;
             --radius-sm: 10px;
+            --navbar-bg: rgba(245, 245, 240, 0.85);
+            --input-bg: rgba(255, 255, 255, 0.6);
+            --scrollbar-thumb: rgba(0, 0, 0, 0.1);
+            --scrollbar-hover: rgba(0, 0, 0, 0.18);
+        }
+
+        /* ===== DARK MODE ===== */
+        [data-theme="dark"] {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(30, 30, 50, 0.75);
+            --bg-glass: rgba(30, 30, 50, 0.5);
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --text-muted: #666680;
+            --border-glass: rgba(255, 255, 255, 0.07);
+            --border-glow: rgba(0, 150, 199, 0.35);
+            --shadow-soft: 0 2px 16px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+            --navbar-bg: rgba(15, 15, 26, 0.85);
+            --input-bg: rgba(30, 30, 50, 0.6);
+            --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+            --scrollbar-hover: rgba(255, 255, 255, 0.18);
+        }
+
+        [data-theme="dark"] body::before {
+            background-image:
+                linear-gradient(rgba(0, 150, 199, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 150, 199, 0.05) 1px, transparent 1px);
+        }
+
+        [data-theme="dark"] body::after {
+            background: radial-gradient(circle, rgba(123, 92, 255, 0.1) 0%, transparent 70%);
         }
 
         body {
@@ -82,7 +115,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 14px 40px;
-            background: rgba(245, 245, 240, 0.85);
+            background: var(--navbar-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-glass);
@@ -116,7 +149,7 @@
         .search-bar {
             width: 280px;
             padding: 10px 16px 10px 40px;
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--input-bg);
             border: 1px solid var(--border-glass);
             border-radius: 50px;
             color: var(--text-primary);
@@ -184,7 +217,7 @@
         .btn-primary:hover::before { left: 100%; }
 
         .btn-ghost {
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--input-bg);
             color: var(--text-primary);
             border: 1px solid var(--border-glass);
         }
@@ -765,7 +798,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--input-bg);
             padding: 4px 12px;
             border-radius: 50px;
             border: 1px solid var(--border-glass);
@@ -774,8 +807,8 @@
         /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.18); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
         /* ===== ANIMATIONS ===== */
         @keyframes fadeInUp {
@@ -810,6 +843,173 @@
             .navbar-actions { width: 100%; justify-content: space-between; }
             .search-bar, .search-bar:focus { width: 100%; }
         }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            animation: toastSlideIn 0.4s ease forwards;
+            border-left: 4px solid var(--accent-green);
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .toast.toast-success { border-left-color: var(--accent-green); }
+        .toast.toast-error { border-left-color: #e8203a; }
+        .toast.toast-info { border-left-color: var(--accent-blue); }
+
+        .toast.fade-out {
+            animation: toastSlideOut 0.3s ease forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toastSlideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(40px); }
+        }
+
+        /* ===== DARK MODE TOGGLE ===== */
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-purple);
+            transform: rotate(20deg);
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%);
+            background-size: 400px 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+            background-size: 400px 100%;
+        }
+
+        .skeleton-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .skeleton-title {
+            height: 20px;
+            width: 70%;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-text {
+            height: 14px;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-text.short { width: 40%; }
+
+        .skeleton-stat {
+            height: 80px;
+            border-radius: var(--radius);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        /* ===== BUDGET PROGRESS BAR ===== */
+        .budget-bar-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 28px;
+        }
+
+        .budget-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .budget-bar-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+        }
+
+        .budget-bar-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .budget-bar-track {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .budget-bar-track {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .budget-bar-fill {
+            height: 100%;
+            border-radius: 50px;
+            transition: width 1s ease;
+            animation: barGrow 1s ease forwards;
+        }
+
+        .budget-bar-fill.green { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+        .budget-bar-fill.orange { background: linear-gradient(90deg, var(--accent-orange), var(--accent-pink)); }
+        .budget-bar-fill.red { background: linear-gradient(90deg, #e8203a, #ff4466); }
+
+        @keyframes barGrow {
+            from { width: 0; }
+        }
     </style>
 </head>
 <body>
@@ -826,7 +1026,9 @@
             </form>
             <a href="{% url 'dashboard' %}" class="btn btn-ghost btn-sm" style="font-size:13px;">Dashboard</a>
             <a href="{% url 'note_list' %}" class="btn btn-ghost btn-sm" style="font-size:13px;">Notes</a>
+            <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm" style="font-size:13px;">Expenses</a>
             <a href="{% url 'note_create' %}" class="btn btn-primary">+ New</a>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">&#9790;</button>
             <div class="user-menu">
                 <span class="user-avatar">{{ request.user.username|make_list|first|upper }}</span>
                 <a href="{% url 'signout' %}" class="btn btn-ghost btn-sm" style="font-size:12px; color: var(--text-muted);">Sign Out</a>
@@ -834,10 +1036,52 @@
         </div>
     </nav>
 
+    <!-- TOAST NOTIFICATIONS -->
+    {% if messages %}
+    <div class="toast-container" id="toastContainer">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- MAIN CONTENT -->
     <main class="main-container">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Dark mode toggle
+        (function() {
+            const toggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                html.dataset.theme = saved;
+            }
+            function updateIcon() {
+                toggle.innerHTML = html.dataset.theme === 'dark' ? '&#9728;' : '&#9790;';
+            }
+            updateIcon();
+            toggle.addEventListener('click', function() {
+                html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', html.dataset.theme);
+                updateIcon();
+            });
+        })();
+
+        // Toast auto-dismiss
+        (function() {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function(toast, i) {
+                setTimeout(function() {
+                    toast.classList.add('fade-out');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 3000 + i * 500);
+            });
+        })();
+    </script>
 
 </body>
 </html>

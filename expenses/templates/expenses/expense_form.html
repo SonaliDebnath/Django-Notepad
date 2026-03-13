@@ -1,0 +1,121 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="form-container">
+        <div class="page-header">
+            <h1 class="page-title">{% if expense %}<span class="highlight">Edit</span> Expense{% else %}<span class="highlight">New</span> Expense{% endif %}</h1>
+        </div>
+
+        <form method="post" class="glass-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-input" placeholder="What did you spend on..." value="{{ expense.title|default:'' }}" required autofocus>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label">Amount (&#8377;)</label>
+                    <input type="number" name="amount" class="form-input" placeholder="0.00" step="0.01" min="0" value="{{ expense.amount|default:'' }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-input" value="{% if expense %}{{ expense.date|date:'Y-m-d' }}{% else %}{{ today }}{% endif %}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <div class="category-picker">
+                    {% for key, label in categories %}
+                    <label class="category-option cat-opt-{{ key }} {% if expense.category == key %}selected{% elif not expense and key == 'other' %}selected{% endif %}">
+                        <input type="radio" name="category" value="{{ key }}" {% if expense.category == key %}checked{% elif not expense and key == 'other' %}checked{% endif %}>
+                        {{ label }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Recurrence</label>
+                <div class="category-picker">
+                    {% for key, label in recurrence_choices %}
+                    <label class="recurrence-option {% if expense.recurrence == key %}selected{% elif not expense and key == 'none' %}selected{% endif %}">
+                        <input type="radio" name="recurrence" value="{{ key }}" {% if expense.recurrence == key %}checked{% elif not expense and key == 'none' %}checked{% endif %}>
+                        {% if key == 'none' %}&#128308;{% elif key == 'daily' %}&#128197;{% elif key == 'weekly' %}&#128466;{% elif key == 'monthly' %}&#128198;{% elif key == 'yearly' %}&#127881;{% endif %} {{ label }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Note (optional)</label>
+                <textarea name="note" class="form-input" style="min-height: 80px;" placeholder="Any additional details...">{{ expense.note|default:'' }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if expense %}Update Expense{% else %}Add Expense{% endif %}</button>
+                <a href="{% url 'expense_list' %}" class="cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .category-picker {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .category-option, .recurrence-option {
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border-glass);
+        background: var(--input-bg);
+        color: var(--text-secondary);
+    }
+    .category-option:hover, .recurrence-option:hover {
+        transform: translateY(-1px);
+        border-color: var(--accent-blue);
+    }
+    .category-option.selected, .recurrence-option.selected {
+        border-color: var(--accent-blue);
+        background: rgba(0, 150, 199, 0.08);
+        color: var(--accent-blue);
+        font-weight: 500;
+    }
+    .category-option input, .recurrence-option input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.category-option input').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+            radio.closest('.category-option').classList.add('selected');
+        });
+    });
+    document.querySelectorAll('.recurrence-option input').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.recurrence-option').forEach(opt => opt.classList.remove('selected'));
+            radio.closest('.recurrence-option').classList.add('selected');
+        });
+    });
+</script>
+{% endblock %}

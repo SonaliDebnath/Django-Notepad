@@ -1,0 +1,239 @@
+{% extends "notes/base.html" %}
+
+{% block content %}
+<!-- SKELETON -->
+<div id="skeleton-expenses">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px;">
+        <div><div class="skeleton skeleton-title" style="width: 200px; height: 32px;"></div></div>
+        <div style="display:flex;gap:10px;"><div class="skeleton" style="width:80px;height:36px;border-radius:50px;"></div><div class="skeleton" style="width:120px;height:36px;border-radius:50px;"></div></div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:28px;">
+        <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
+        <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
+        <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
+    </div>
+    <div class="skeleton" style="width:100%;height:300px;border-radius:14px;"></div>
+</div>
+
+<!-- REAL CONTENT -->
+<div id="real-expenses" style="display:none;">
+<div class="animate-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><span class="highlight">Expenses</span></h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Track where your money goes</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'expense_export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-ghost btn-sm" title="Download CSV">&#128229; Export</a>
+            <a href="{% url 'expense_summary' %}" class="btn btn-ghost btn-sm">Summary</a>
+            <a href="{% url 'expense_create' %}" class="btn btn-primary">+ Add Expense</a>
+        </div>
+    </div>
+
+    <!-- BUDGET PROGRESS BAR -->
+    {% if budget_limit > 0 %}
+    <div class="budget-bar-wrapper">
+        <div class="budget-bar-header">
+            <span class="budget-bar-title">Monthly Budget</span>
+            <span class="budget-bar-amount" style="color: {% if budget_percentage >= 90 %}#e8203a{% elif budget_percentage >= 75 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+                &#8377;{{ monthly_total }} / &#8377;{{ budget_limit }} ({{ budget_percentage }}%)
+            </span>
+        </div>
+        <div class="budget-bar-track">
+            <div class="budget-bar-fill {% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}" style="width: {{ budget_percentage }}%;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SET BUDGET INLINE -->
+    <div style="margin-bottom: 20px;">
+        <form method="post" action="{% url 'set_budget' %}" style="display:inline-flex; align-items:center; gap:8px;">
+            {% csrf_token %}
+            <label class="budget-bar-title" style="margin:0;">Set Monthly Budget:</label>
+            <input type="number" name="monthly_limit" class="filter-select" style="width:140px;" placeholder="e.g. 10000" step="100" min="0" value="{% if budget_limit > 0 %}{{ budget_limit }}{% endif %}">
+            <button type="submit" class="btn btn-ghost btn-sm">Save</button>
+        </form>
+    </div>
+
+    <!-- FILTERS -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;">
+        <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <input type="text" name="q" class="filter-select" style="width: 200px;" placeholder="Search expenses..." value="{{ query|default:'' }}">
+            <select name="category" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for key, label in categories %}
+                <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="month" name="month" class="filter-select" value="{{ selected_month }}" onchange="this.form.submit()">
+            <input type="date" name="date_from" class="filter-select" value="{{ date_from }}" placeholder="From" title="From date" onchange="this.form.submit()">
+            <input type="date" name="date_to" class="filter-select" value="{{ date_to }}" placeholder="To" title="To date" onchange="this.form.submit()">
+            {% if selected_category or selected_month or query or date_from or date_to %}
+            <a href="{% url 'expense_list' %}" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-blue); text-decoration: none;">Clear filters</a>
+            {% endif %}
+        </form>
+        <div style="margin-left: auto;">
+            <span class="note-count"><span class="live-dot" style="width:6px; height:6px; margin-right: 6px;"></span> {{ expenses|length }} expenses &middot; Total: &#8377;{{ total }}</span>
+        </div>
+    </div>
+
+    {% if expenses %}
+    <div class="expense-table-wrapper">
+        <table class="expense-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th style="text-align: right;">Amount</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr class="expense-row">
+                    <td>
+                        <div style="font-weight: 500; color: var(--text-primary);">
+                            {{ expense.title }}
+                            {% if expense.recurrence != 'none' %}<span title="Recurring: {{ expense.get_recurrence_display }}" style="font-size:12px;">&#128260;</span>{% endif %}
+                        </div>
+                        {% if expense.note %}<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ expense.note|truncatewords:8 }}</div>{% endif %}
+                    </td>
+                    <td><span class="category-badge cat-{{ expense.category }}">{{ expense.get_category_display }}</span></td>
+                    <td><span class="expense-date">{{ expense.date|date:"M d, Y" }}</span></td>
+                    <td style="text-align: right;"><span class="expense-amount">&#8377;{{ expense.amount }}</span></td>
+                    <td style="text-align: right;">
+                        <div class="row-actions">
+                            <a href="{% url 'expense_edit' expense.pk %}" class="action-link action-edit">edit</a>
+                            <a href="{% url 'expense_delete' expense.pk %}" class="action-link action-delete">delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">&#128176;</div>
+        <h2>No expenses yet</h2>
+        <p>{% if selected_category or selected_month or query or date_from or date_to %}No expenses match your filters.{% else %}Start tracking your spending!{% endif %}</p>
+        <a href="{% url 'expense_create' %}" class="btn btn-primary">+ Add Expense</a>
+    </div>
+    {% endif %}
+</div>
+</div>
+
+<style>
+    .filter-select {
+        padding: 8px 14px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-glass);
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: var(--text-primary);
+        outline: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .filter-select:focus {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.1);
+    }
+
+    .expense-table-wrapper {
+        background: var(--bg-card);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius);
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+    }
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .expense-table thead th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-glass);
+        text-align: left;
+    }
+    .expense-table tbody td {
+        padding: 16px 20px;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border-glass);
+        vertical-align: middle;
+    }
+    .expense-row {
+        transition: all 0.2s ease;
+        animation: fadeInUp 0.3s ease forwards;
+    }
+    .expense-row:hover {
+        background: rgba(0, 150, 199, 0.03);
+    }
+
+    .category-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    .cat-food { background: rgba(224, 120, 0, 0.1); color: var(--accent-orange); }
+    .cat-transport { background: rgba(0, 150, 199, 0.1); color: var(--accent-blue); }
+    .cat-shopping { background: rgba(224, 80, 144, 0.1); color: var(--accent-pink); }
+    .cat-bills { background: rgba(123, 92, 255, 0.1); color: var(--accent-purple); }
+    .cat-entertainment { background: rgba(0, 180, 216, 0.1); color: var(--accent-cyan); }
+    .cat-health { background: rgba(0, 179, 104, 0.1); color: var(--accent-green); }
+    .cat-education { background: rgba(0, 150, 199, 0.1); color: var(--accent-blue); }
+    .cat-other { background: rgba(0, 0, 0, 0.05); color: var(--text-muted); }
+
+    .expense-date {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+    .expense-amount {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .row-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    .expense-row:hover .row-actions {
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        .expense-table thead { display: none; }
+        .expense-table tbody td {
+            display: block;
+            padding: 8px 20px;
+            text-align: left !important;
+        }
+        .expense-table tbody td:first-child { padding-top: 16px; }
+        .expense-table tbody td:last-child { padding-bottom: 16px; }
+        .row-actions { opacity: 1; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('skeleton-expenses').style.display = 'none';
+        document.getElementById('real-expenses').style.display = 'block';
+    });
+</script>
+{% endblock %}
