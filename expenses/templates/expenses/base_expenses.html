@@ -1,0 +1,20 @@
+{% extends "notes/base.html" %}
+
+{% block nav_search %}
+<form method="get" action="{% url 'expense_list' %}" class="search-wrapper" role="search">
+    <span class="search-icon" aria-hidden="true">&#128269;</span>
+    <input type="text" name="q" class="search-bar" placeholder="Search expenses..." value="{{ query|default:'' }}" aria-label="Search expenses">
+</form>
+{% endblock %}
+
+{% block nav_links %}
+<a href="{% url 'expense_dashboard' %}" class="nav-link">Dashboard</a>
+<a href="{% url 'expense_list' %}" class="nav-link">Expenses</a>
+<a href="{% url 'expense_summary' %}" class="nav-link">Summary</a>
+{% endblock %}
+
+{% block nav_new_btn %}
+<a href="{% url 'expense_create' %}" class="btn btn-primary btn-sm">+ Add Expense</a>
+{% endblock %}
+
+{% block shortcut_url %}{% url 'expense_create' %}{% endblock %}

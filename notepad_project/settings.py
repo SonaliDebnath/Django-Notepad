@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 LOGIN_URL = '/accounts/signin/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/signin/'
 
 MIDDLEWARE = [
@@ -61,7 +61,7 @@ ROOT_URLCONF = 'notepad_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'notepad_project' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

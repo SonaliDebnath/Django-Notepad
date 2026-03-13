@@ -781,8 +781,11 @@
             font-size: 15px;
             line-height: 1.8;
             color: var(--text-secondary);
-            white-space: pre-wrap;
         }
+
+        .detail-body b, .detail-body strong { font-weight: 700; }
+        .detail-body i, .detail-body em { font-style: italic; }
+        .detail-body u { text-decoration: underline; }
 
         .detail-actions {
             display: flex;
@@ -1177,6 +1180,88 @@
             from { width: 0; }
         }
 
+        /* ===== FORMATTING TOOLBAR ===== */
+        .formatting-toolbar {
+            display: flex;
+            gap: 4px;
+            padding: 6px 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-glass);
+            border-bottom: none;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+
+        .formatting-toolbar button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s ease;
+        }
+
+        .formatting-toolbar button:hover {
+            background: rgba(0, 150, 199, 0.08);
+            border-color: var(--border-glass);
+            color: var(--text-primary);
+        }
+
+        .formatting-toolbar button.active {
+            background: rgba(0, 150, 199, 0.12);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .formatting-toolbar .toolbar-separator {
+            width: 1px;
+            background: var(--border-glass);
+            margin: 4px 4px;
+        }
+
+        .formatting-toolbar .toolbar-hint {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .editor-area {
+            width: 100%;
+            min-height: 300px;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.7;
+            outline: none;
+            overflow-y: auto;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .editor-area:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.08);
+        }
+
+        .editor-area:empty::before {
+            content: attr(data-placeholder);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
         /* ===== FOCUS VISIBLE ===== */
         :focus-visible {
             outline: 2px solid var(--accent-blue);
@@ -1193,27 +1278,32 @@
 
     <!-- NAVBAR -->
     <nav class="navbar" role="navigation" aria-label="Main navigation">
-        <a href="{% url 'dashboard' %}" class="navbar-brand" aria-label="NeoNote Home">Neo<span>Note</span></a>
+        <a href="{% url 'home' %}" class="navbar-brand" aria-label="NeoNote Home">Neo<span>Note</span></a>
 
         <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-expanded="false">
             &#9776;
         </button>
 
         <div class="navbar-actions" id="navActions">
+            {% block nav_search %}
             <form method="get" action="{% url 'note_list' %}" class="search-wrapper" role="search">
                 <span class="search-icon" aria-hidden="true">&#128269;</span>
                 <input type="text" name="q" class="search-bar" placeholder="Search notes..." value="{{ query|default:'' }}" aria-label="Search notes">
             </form>
+            {% endblock %}
 
             <span class="nav-separator" aria-hidden="true"></span>
 
+            {% block nav_links %}
             <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
             <a href="{% url 'note_list' %}" class="nav-link">Notes</a>
-            <a href="{% url 'expense_list' %}" class="nav-link">Expenses</a>
+            {% endblock %}
 
             <span class="nav-separator" aria-hidden="true"></span>
 
-            <a href="{% url 'note_create' %}" class="btn btn-primary btn-sm">+ New</a>
+            {% block nav_new_btn %}
+            <a href="{% url 'note_create' %}" class="btn btn-primary btn-sm">+ New Note</a>
+            {% endblock %}
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">&#9790;</button>
 
             <div class="user-menu">
@@ -1293,13 +1383,13 @@
             }
         })();
 
-        // Ctrl+N shortcut for new note
+        // Ctrl+N shortcut
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
                 var tag = document.activeElement.tagName;
                 if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
                 e.preventDefault();
-                window.location.href = "{% url 'note_create' %}";
+                window.location.href = "{% block shortcut_url %}{% url 'note_create' %}{% endblock %}";
             }
         });
     </script>

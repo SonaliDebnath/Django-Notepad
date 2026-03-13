@@ -117,8 +117,11 @@
             font-size: 15px;
             line-height: 1.8;
             color: var(--text-secondary);
-            white-space: pre-wrap;
         }
+
+        .body b, .body strong { font-weight: 700; }
+        .body i, .body em { font-style: italic; }
+        .body u { text-decoration: underline; }
 
         .word-badge {
             font-family: 'JetBrains Mono', monospace;
@@ -150,7 +153,7 @@
                 <span>{{ note.created_at|date:"M d, Y" }}</span>
                 <span class="word-badge">{{ note.word_count }} words</span>
             </div>
-            <div class="body">{{ note.body }}</div>
+            <div class="body">{{ note.body|safe }}</div>
         </div>
     </div>
 </body>

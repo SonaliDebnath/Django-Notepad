@@ -21,7 +21,7 @@
             <span class="word-count">{{ note.word_count }} words</span>
         </div>
 
-        <div class="detail-body">{{ note.body }}</div>
+        <div class="detail-body">{{ note.body|safe }}</div>
 
         <!-- SHARE LINK -->
         {% if share_url %}

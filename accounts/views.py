@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 def signup_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
     error = ''
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -21,13 +21,13 @@ def signup_view(request):
         else:
             user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
-            return redirect('dashboard')
+            return redirect('home')
     return render(request, 'accounts/signup.html', {'error': error})
 
 
 def signin_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
     error = ''
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -35,7 +35,7 @@ def signin_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            return redirect('home')
         else:
             error = 'Invalid username or password.'
     return render(request, 'accounts/signin.html', {'error': error})

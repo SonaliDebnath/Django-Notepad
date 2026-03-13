@@ -6,7 +6,7 @@
         <h1 class="page-title">{% if note %}<span class="highlight">Edit</span> Note{% else %}<span class="highlight">New</span> Note{% endif %}</h1>
     </div>
 
-    <form method="post" class="glass-form">
+    <form method="post" class="glass-form" id="noteForm">
         {% csrf_token %}
 
         <div class="form-group">
@@ -18,11 +18,28 @@
 
         <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                <label for="body" class="form-label">Content</label>
+                <label class="form-label">Content</label>
                 <span id="wordCount" class="form-label" style="text-transform: none; letter-spacing: 0; font-size: 11px;">0 words</span>
             </div>
-            <textarea name="body" id="body" class="form-input"
-                      placeholder="Start writing..." required>{{ note.body|default:'' }}</textarea>
+
+            <!-- Formatting Toolbar -->
+            <div class="formatting-toolbar">
+                <button type="button" id="btnBold" data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+                <button type="button" id="btnItalic" data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+                <button type="button" id="btnUnderline" data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                <span class="toolbar-separator"></span>
+                <span class="toolbar-hint">
+                    <span class="kbd">Ctrl</span>+<span class="kbd">B</span>
+                    <span class="kbd">I</span>
+                    <span class="kbd">U</span>
+                </span>
+            </div>
+
+            <!-- Contenteditable Editor -->
+            <div class="editor-area" id="editor" contenteditable="true" data-placeholder="Start writing...">{% if note %}{{ note.body|safe }}{% endif %}</div>
+
+            <!-- Hidden input to carry HTML on submit -->
+            <input type="hidden" name="body" id="bodyInput">
         </div>
 
         <div class="form-group">
@@ -64,29 +81,68 @@ function selectColor(color) {
     document.getElementById('opt-' + color).classList.add('selected');
 }
 
-// Auto-resize textarea
 (function() {
-    var textarea = document.getElementById('body');
+    var editor = document.getElementById('editor');
+    var bodyInput = document.getElementById('bodyInput');
     var wordCountEl = document.getElementById('wordCount');
+    var form = document.getElementById('noteForm');
 
-    function autoResize() {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.max(300, textarea.scrollHeight) + 'px';
+    // Toolbar buttons
+    var btnBold = document.getElementById('btnBold');
+    var btnItalic = document.getElementById('btnItalic');
+    var btnUnderline = document.getElementById('btnUnderline');
+
+    // Apply formatting command
+    function execFormat(command) {
+        document.execCommand(command, false, null);
+        editor.focus();
+        updateToolbarState();
     }
 
+    btnBold.addEventListener('click', function() { execFormat('bold'); });
+    btnItalic.addEventListener('click', function() { execFormat('italic'); });
+    btnUnderline.addEventListener('click', function() { execFormat('underline'); });
+
+    // Update active state of toolbar buttons
+    function updateToolbarState() {
+        btnBold.classList.toggle('active', document.queryCommandState('bold'));
+        btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+        btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+    }
+
+    // Update word count
     function updateWordCount() {
-        var text = textarea.value.trim();
+        var text = (editor.innerText || '').trim();
         var count = text ? text.split(/\s+/).length : 0;
         wordCountEl.textContent = count + ' word' + (count !== 1 ? 's' : '');
     }
 
-    textarea.addEventListener('input', function() {
-        autoResize();
-        updateWordCount();
+    // Listen for selection changes to update toolbar state
+    document.addEventListener('selectionchange', function() {
+        if (editor.contains(document.activeElement) || editor === document.activeElement) {
+            updateToolbarState();
+        }
     });
 
-    autoResize();
+    editor.addEventListener('input', updateWordCount);
+    editor.addEventListener('keyup', updateToolbarState);
+
+    // Sync editor content to hidden input on form submit
+    form.addEventListener('submit', function(e) {
+        var content = editor.innerHTML.trim();
+        // Treat empty editor as no content
+        if (!content || content === '<br>' || content === '<div><br></div>') {
+            // Prevent submit if empty — add required-like behavior
+            e.preventDefault();
+            editor.focus();
+            return;
+        }
+        bodyInput.value = content;
+    });
+
+    // Initialize
     updateWordCount();
+    updateToolbarState();
 })();
 </script>
 {% endblock %}

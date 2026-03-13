@@ -32,7 +32,7 @@
                         {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
                     </div>
                 </div>
-                <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
+                <p class="note-card-body">{{ note.body|striptags|truncatewords:30 }}</p>
             </a>
             <div class="note-card-meta">
                 <div class="note-card-info">
@@ -68,7 +68,7 @@
                         {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
                     </div>
                 </div>
-                <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
+                <p class="note-card-body">{{ note.body|striptags|truncatewords:30 }}</p>
             </a>
             <div class="note-card-meta">
                 <div class="note-card-info">

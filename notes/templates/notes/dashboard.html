@@ -25,99 +25,12 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Hey, <span class="highlight">{{ request.user.username }}</span></h1>
-            <p class="page-subtitle">Here's your overview</p>
+            <p class="page-subtitle">Your notes at a glance</p>
         </div>
         <div class="header-actions">
-            <a href="{% url 'expense_create' %}" class="btn btn-ghost btn-sm">+ Expense</a>
             <a href="{% url 'note_create' %}" class="btn btn-primary btn-sm">+ New Note</a>
         </div>
     </div>
-
-    <!-- ===== BUDGET PROGRESS BAR ===== -->
-    {% if budget_limit > 0 %}
-    <div class="budget-bar-wrapper">
-        <div class="budget-bar-header">
-            <span class="budget-bar-title">Monthly Budget</span>
-            <span class="budget-bar-amount budget-color-{% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}">
-                &#8377;{{ monthly_spending }} / &#8377;{{ budget_limit }} ({{ budget_percentage }}%)
-            </span>
-        </div>
-        <div class="budget-bar-track">
-            <div class="budget-bar-fill {% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}" style="width: {{ budget_percentage }}%;"></div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- ===== EXPENSE STATS ===== -->
-    <div class="section-label">
-        <span class="dot dot-orange"></span> Expense Overview
-    </div>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number expense-gradient">&#8377;{{ monthly_spending }}</div>
-            <div class="stat-label">{{ current_month }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number expense-gradient">&#8377;{{ total_spending }}</div>
-            <div class="stat-label">All Time Spending</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number expense-gradient">{{ expense_count }}</div>
-            <div class="stat-label">Total Expenses</div>
-        </div>
-    </div>
-    {% if top_category %}
-    <div class="top-category-row">
-        <span class="top-cat-badge">Top category this month: <strong>{{ top_category }}</strong></span>
-    </div>
-    {% endif %}
-
-    <!-- ===== SPENDING CHART ===== -->
-    {% if category_data %}
-    <div class="section-label" style="margin-top: 24px;">
-        <span class="dot dot-orange"></span> Spending Breakdown ({{ current_month }})
-    </div>
-    <div class="charts-grid">
-        <!-- BAR CHART -->
-        <div class="chart-card">
-            <div class="bar-chart">
-                {% for item in category_data %}
-                <div class="bar-group">
-                    <div class="bar-value">{{ item.percentage }}%</div>
-                    <div class="bar" style="--bar-height: {{ item.percentage }}%; --bar-color: var(--accent-{{ item.color }});">
-                        <div class="bar-fill"></div>
-                    </div>
-                    <div class="bar-label">{{ item.label }}</div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <!-- DONUT CHART -->
-        <div class="chart-card chart-card-donut">
-            <div class="donut-chart" style="background: conic-gradient({{ conic_gradient }});">
-                <div class="donut-hole">
-                    <span class="donut-amount">&#8377;{{ monthly_spending }}</span>
-                    <span class="donut-label">THIS MONTH</span>
-                </div>
-            </div>
-            <div class="donut-legend">
-                {% for item in category_data %}
-                <div class="legend-item">
-                    <span class="legend-dot" style="background: var(--accent-{{ item.color }});"></span>
-                    <span>{{ item.label }}</span>
-                    <span class="legend-amount">&#8377;{{ item.amount|floatformat:0 }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <div class="center-link">
-        <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm">View All Expenses &rarr;</a>
-    </div>
-
-    <hr class="glow-divider">
 
     <!-- ===== NOTES STATS ===== -->
     <div class="section-label">
@@ -149,36 +62,6 @@
             <span class="color-tag color-{{ color }}"></span>
             <span class="color-stat-name">{{ color|title }}</span>
             <span class="badge">{{ count }}</span>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <hr class="glow-divider">
-
-    <!-- ===== RECENT EXPENSES ===== -->
-    {% if recent_expenses %}
-    <div class="section-label">
-        <span class="dot dot-orange"></span> Recent Expenses
-    </div>
-    <div class="notes-grid" style="margin-bottom: 32px;">
-        {% for expense in recent_expenses %}
-        <div class="note-card tag-{% cycle 'orange' 'purple' 'cyan' 'pink' 'green' %}">
-            <div class="note-card-header">
-                <div class="note-card-title-row">
-                    <h3 class="note-card-title">{{ expense.title }}</h3>
-                    {% if expense.recurrence != 'none' %}<span class="recurrence-icon" title="Recurring">&#128260;</span>{% endif %}
-                </div>
-            </div>
-            <p class="note-card-body" style="-webkit-line-clamp: 2;">
-                {{ expense.get_category_display }}{% if expense.note %} &middot; {{ expense.note|truncatewords:8 }}{% endif %}
-            </p>
-            <div class="note-card-meta">
-                <div class="note-card-info">
-                    <span class="note-card-date">{{ expense.date|date:"M d, Y" }}</span>
-                </div>
-                <span class="expense-card-amount">&#8377;{{ expense.amount }}</span>
-            </div>
         </div>
         {% endfor %}
     </div>
@@ -217,15 +100,12 @@
     </div>
     {% endif %}
 
-    {% if not recent and not recent_expenses %}
+    {% if not recent %}
     <div class="empty-state">
         <div class="empty-state-icon">&#128221;</div>
-        <h2>Nothing here yet</h2>
-        <p>Create a note or add an expense to get started.</p>
-        <div class="empty-state-actions">
-            <a href="{% url 'expense_create' %}" class="btn btn-ghost">+ Add Expense</a>
-            <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
-        </div>
+        <h2>No notes yet</h2>
+        <p>Create your first note to get started.</p>
+        <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
     </div>
     {% endif %}
 </div>
@@ -237,19 +117,16 @@
         font-size: 14px;
         margin-top: 4px;
     }
-
     .header-actions {
         display: flex;
         gap: 8px;
     }
-
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 12px;
         margin-bottom: 24px;
     }
-
     .stat-card {
         background: var(--bg-card);
         border: 1px solid var(--border-glass);
@@ -273,11 +150,6 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    .stat-number.expense-gradient {
-        background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
-        -webkit-background-clip: text;
-        background-clip: text;
-    }
     .stat-label {
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
@@ -286,21 +158,6 @@
         color: var(--text-muted);
         margin-top: 6px;
     }
-
-    .top-category-row {
-        margin-bottom: 20px;
-    }
-    .top-cat-badge {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
-        color: var(--text-secondary);
-        background: rgba(224, 120, 0, 0.06);
-        border: 1px solid rgba(224, 120, 0, 0.12);
-        padding: 6px 16px;
-        border-radius: 50px;
-    }
-    .top-cat-badge strong { color: var(--accent-orange); }
-
     .color-stats-row {
         display: flex;
         gap: 10px;
@@ -320,165 +177,16 @@
         font-size: 13px;
         color: var(--text-secondary);
     }
-
     .center-link {
         text-align: center;
         margin-top: 4px;
         margin-bottom: 16px;
     }
-
-    .budget-color-green { color: var(--accent-green); }
-    .budget-color-orange { color: var(--accent-orange); }
-    .budget-color-red { color: #e8203a; }
-
-    .recurrence-icon {
-        font-size: 12px;
-        margin-left: 6px;
-    }
-
-    .expense-card-amount {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 600;
-        color: var(--accent-orange);
-    }
-
-    .empty-state-actions {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-    }
-
     .dash-header-skeleton {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 36px;
-    }
-
-    /* CHARTS */
-    .charts-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-    .chart-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-glass);
-        border-radius: var(--radius);
-        padding: 22px;
-        backdrop-filter: blur(10px);
-        box-shadow: var(--shadow-soft);
-    }
-    .chart-card-donut {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    .bar-chart {
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        gap: 14px;
-        height: 200px;
-        padding-top: 20px;
-    }
-    .bar-group { text-align: center; flex: 1; max-width: 56px; }
-    .bar {
-        height: 160px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        margin: 4px auto;
-        width: 28px;
-    }
-    .bar-fill {
-        width: 100%;
-        height: var(--bar-height);
-        background: var(--bar-color);
-        border-radius: 5px 5px 2px 2px;
-        animation: growBar 0.8s ease forwards;
-        opacity: 0.8;
-        transition: opacity 0.2s;
-    }
-    .bar-fill:hover { opacity: 1; }
-    .bar-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 10px;
-        color: var(--text-muted);
-    }
-    .bar-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 9px;
-        color: var(--text-muted);
-        margin-top: 6px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    @keyframes growBar {
-        from { height: 0; }
-    }
-
-    .donut-chart {
-        width: 170px;
-        height: 170px;
-        border-radius: 50%;
-        position: relative;
-        margin-bottom: 18px;
-    }
-    .donut-hole {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 105px; height: 105px;
-        background: var(--bg-card);
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-    }
-    .donut-amount {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 17px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-    .donut-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 9px;
-        color: var(--text-muted);
-    }
-    .donut-legend {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        color: var(--text-secondary);
-    }
-    .legend-dot {
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-    .legend-amount {
-        margin-left: auto;
-        font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 
