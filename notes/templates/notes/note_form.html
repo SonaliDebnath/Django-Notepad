@@ -13,11 +13,14 @@
             <label for="title" class="form-label">Title</label>
             <input type="text" name="title" id="title" class="form-input"
                    placeholder="Give your note a title..."
-                   value="{{ note.title|default:'' }}" required>
+                   value="{{ note.title|default:'' }}" required autofocus>
         </div>
 
         <div class="form-group">
-            <label for="body" class="form-label">Content</label>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <label for="body" class="form-label">Content</label>
+                <span id="wordCount" class="form-label" style="text-transform: none; letter-spacing: 0; font-size: 11px;">0 words</span>
+            </div>
             <textarea name="body" id="body" class="form-input"
                       placeholder="Start writing..." required>{{ note.body|default:'' }}</textarea>
         </div>
@@ -25,22 +28,22 @@
         <div class="form-group">
             <label class="form-label">Color Tag</label>
             <div class="color-picker">
-                <label class="color-option co-blue {% if not note or note.color_tag == 'blue' %}selected{% endif %}" id="opt-blue">
+                <label class="color-option co-blue {% if not note or note.color_tag == 'blue' %}selected{% endif %}" id="opt-blue" title="Blue" aria-label="Blue">
                     <input type="radio" name="color_tag" value="blue" {% if not note or note.color_tag == 'blue' %}checked{% endif %} onchange="selectColor('blue')">
                 </label>
-                <label class="color-option co-purple {% if note.color_tag == 'purple' %}selected{% endif %}" id="opt-purple">
+                <label class="color-option co-purple {% if note.color_tag == 'purple' %}selected{% endif %}" id="opt-purple" title="Purple" aria-label="Purple">
                     <input type="radio" name="color_tag" value="purple" {% if note.color_tag == 'purple' %}checked{% endif %} onchange="selectColor('purple')">
                 </label>
-                <label class="color-option co-cyan {% if note.color_tag == 'cyan' %}selected{% endif %}" id="opt-cyan">
+                <label class="color-option co-cyan {% if note.color_tag == 'cyan' %}selected{% endif %}" id="opt-cyan" title="Cyan" aria-label="Cyan">
                     <input type="radio" name="color_tag" value="cyan" {% if note.color_tag == 'cyan' %}checked{% endif %} onchange="selectColor('cyan')">
                 </label>
-                <label class="color-option co-pink {% if note.color_tag == 'pink' %}selected{% endif %}" id="opt-pink">
+                <label class="color-option co-pink {% if note.color_tag == 'pink' %}selected{% endif %}" id="opt-pink" title="Pink" aria-label="Pink">
                     <input type="radio" name="color_tag" value="pink" {% if note.color_tag == 'pink' %}checked{% endif %} onchange="selectColor('pink')">
                 </label>
-                <label class="color-option co-green {% if note.color_tag == 'green' %}selected{% endif %}" id="opt-green">
+                <label class="color-option co-green {% if note.color_tag == 'green' %}selected{% endif %}" id="opt-green" title="Green" aria-label="Green">
                     <input type="radio" name="color_tag" value="green" {% if note.color_tag == 'green' %}checked{% endif %} onchange="selectColor('green')">
                 </label>
-                <label class="color-option co-orange {% if note.color_tag == 'orange' %}selected{% endif %}" id="opt-orange">
+                <label class="color-option co-orange {% if note.color_tag == 'orange' %}selected{% endif %}" id="opt-orange" title="Orange" aria-label="Orange">
                     <input type="radio" name="color_tag" value="orange" {% if note.color_tag == 'orange' %}checked{% endif %} onchange="selectColor('orange')">
                 </label>
             </div>
@@ -57,8 +60,33 @@
 
 <script>
 function selectColor(color) {
-    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.color-option').forEach(function(el) { el.classList.remove('selected'); });
     document.getElementById('opt-' + color).classList.add('selected');
 }
+
+// Auto-resize textarea
+(function() {
+    var textarea = document.getElementById('body');
+    var wordCountEl = document.getElementById('wordCount');
+
+    function autoResize() {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.max(300, textarea.scrollHeight) + 'px';
+    }
+
+    function updateWordCount() {
+        var text = textarea.value.trim();
+        var count = text ? text.split(/\s+/).length : 0;
+        wordCountEl.textContent = count + ' word' + (count !== 1 ? 's' : '');
+    }
+
+    textarea.addEventListener('input', function() {
+        autoResize();
+        updateWordCount();
+    });
+
+    autoResize();
+    updateWordCount();
+})();
 </script>
 {% endblock %}

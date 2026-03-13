@@ -6,7 +6,7 @@
         <h1 class="page-title">Your <span class="highlight">Notes</span></h1>
     </div>
     <span class="note-count">
-        <span class="live-dot"></span>&nbsp;&nbsp;{{ total }} note{{ total|pluralize }}
+        <span class="live-dot"></span> {{ total }} note{{ total|pluralize }}
     </span>
 </div>
 
@@ -23,17 +23,15 @@
     <div class="notes-grid">
         {% for note in pinned_notes %}
         <div class="note-card tag-{{ note.color_tag }}">
-            <div class="note-card-header">
-                <div class="note-card-title-row">
-                    <span class="color-tag color-{{ note.color_tag }}"></span>
-                    <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+            <a href="{% url 'note_detail' note.pk %}" class="note-card-link">
+                <div class="note-card-header">
+                    <div class="note-card-title-row">
+                        <span class="color-tag color-{{ note.color_tag }}"></span>
                         <h3 class="note-card-title">{{ note.title }}</h3>
-                    </a>
-                    <span class="pin-icon">&#128204;</span>
-                    {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
+                        <span class="pin-icon">&#128204;</span>
+                        {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
+                    </div>
                 </div>
-            </div>
-            <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
                 <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
             </a>
             <div class="note-card-meta">
@@ -62,16 +60,14 @@
     <div class="notes-grid">
         {% for note in notes %}
         <div class="note-card tag-{{ note.color_tag }}">
-            <div class="note-card-header">
-                <div class="note-card-title-row">
-                    <span class="color-tag color-{{ note.color_tag }}"></span>
-                    <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+            <a href="{% url 'note_detail' note.pk %}" class="note-card-link">
+                <div class="note-card-header">
+                    <div class="note-card-title-row">
+                        <span class="color-tag color-{{ note.color_tag }}"></span>
                         <h3 class="note-card-title">{{ note.title }}</h3>
-                    </a>
-                    {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
+                        {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
+                    </div>
                 </div>
-            </div>
-            <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
                 <p class="note-card-body">{{ note.body|truncatewords:30 }}</p>
             </a>
             <div class="note-card-meta">
@@ -103,10 +99,4 @@
         {% endif %}
     </div>
 {% endif %}
-
-<hr class="glow-divider">
-<div style="text-align: center; padding: 8px 0;">
-    <span class="kbd">Ctrl</span> + <span class="kbd">N</span>
-    <span style="color: var(--text-muted); font-size: 11px; margin-left: 4px;">New Note</span>
-</div>
 {% endblock %}

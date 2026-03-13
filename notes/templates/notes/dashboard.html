@@ -3,11 +3,11 @@
 {% block content %}
 <!-- SKELETON -->
 <div id="skeleton-dashboard">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px;">
+    <div class="dash-header-skeleton">
         <div><div class="skeleton skeleton-title" style="width: 250px; height: 32px;"></div><div class="skeleton skeleton-text short" style="margin-top: 8px;"></div></div>
-        <div class="skeleton" style="width: 120px; height: 40px; border-radius: 50px;"></div>
+        <div class="skeleton" style="width: 120px; height: 36px; border-radius: 8px;"></div>
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+    <div class="stats-grid">
         <div class="skeleton skeleton-stat"></div>
         <div class="skeleton skeleton-stat"></div>
         <div class="skeleton skeleton-stat"></div>
@@ -25,11 +25,11 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Hey, <span class="highlight">{{ request.user.username }}</span></h1>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Here's your overview</p>
+            <p class="page-subtitle">Here's your overview</p>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div class="header-actions">
             <a href="{% url 'expense_create' %}" class="btn btn-ghost btn-sm">+ Expense</a>
-            <a href="{% url 'note_create' %}" class="btn btn-primary">+ New Note</a>
+            <a href="{% url 'note_create' %}" class="btn btn-primary btn-sm">+ New Note</a>
         </div>
     </div>
 
@@ -38,7 +38,7 @@
     <div class="budget-bar-wrapper">
         <div class="budget-bar-header">
             <span class="budget-bar-title">Monthly Budget</span>
-            <span class="budget-bar-amount" style="color: {% if budget_percentage >= 90 %}#e8203a{% elif budget_percentage >= 75 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+            <span class="budget-bar-amount budget-color-{% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}">
                 &#8377;{{ monthly_spending }} / &#8377;{{ budget_limit }} ({{ budget_percentage }}%)
             </span>
         </div>
@@ -52,7 +52,7 @@
     <div class="section-label">
         <span class="dot dot-orange"></span> Expense Overview
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number expense-gradient">&#8377;{{ monthly_spending }}</div>
             <div class="stat-label">{{ current_month }}</div>
@@ -67,7 +67,7 @@
         </div>
     </div>
     {% if top_category %}
-    <div style="margin-bottom: 24px;">
+    <div class="top-category-row">
         <span class="top-cat-badge">Top category this month: <strong>{{ top_category }}</strong></span>
     </div>
     {% endif %}
@@ -77,7 +77,7 @@
     <div class="section-label" style="margin-top: 24px;">
         <span class="dot dot-orange"></span> Spending Breakdown ({{ current_month }})
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+    <div class="charts-grid">
         <!-- BAR CHART -->
         <div class="chart-card">
             <div class="bar-chart">
@@ -93,11 +93,11 @@
             </div>
         </div>
         <!-- DONUT CHART -->
-        <div class="chart-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="chart-card chart-card-donut">
             <div class="donut-chart" style="background: conic-gradient({{ conic_gradient }});">
                 <div class="donut-hole">
-                    <span style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text-primary);">&#8377;{{ monthly_spending }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);">THIS MONTH</span>
+                    <span class="donut-amount">&#8377;{{ monthly_spending }}</span>
+                    <span class="donut-label">THIS MONTH</span>
                 </div>
             </div>
             <div class="donut-legend">
@@ -105,7 +105,7 @@
                 <div class="legend-item">
                     <span class="legend-dot" style="background: var(--accent-{{ item.color }});"></span>
                     <span>{{ item.label }}</span>
-                    <span style="margin-left:auto; font-weight:600;">&#8377;{{ item.amount|floatformat:0 }}</span>
+                    <span class="legend-amount">&#8377;{{ item.amount|floatformat:0 }}</span>
                 </div>
                 {% endfor %}
             </div>
@@ -113,7 +113,7 @@
     </div>
     {% endif %}
 
-    <div style="text-align: center; margin-bottom: 40px;">
+    <div class="center-link">
         <a href="{% url 'expense_list' %}" class="btn btn-ghost btn-sm">View All Expenses &rarr;</a>
     </div>
 
@@ -123,7 +123,7 @@
     <div class="section-label">
         <span class="dot dot-blue"></span> Notes Overview
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number">{{ total }}</div>
             <div class="stat-label">Total Notes</div>
@@ -143,11 +143,11 @@
     <div class="section-label">
         <span class="dot dot-blue"></span> Notes by Color
     </div>
-    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px;">
+    <div class="color-stats-row">
         {% for color, count in colors.items %}
         <div class="color-stat">
             <span class="color-tag color-{{ color }}"></span>
-            <span style="font-size: 13px; color: var(--text-secondary);">{{ color|title }}</span>
+            <span class="color-stat-name">{{ color|title }}</span>
             <span class="badge">{{ count }}</span>
         </div>
         {% endfor %}
@@ -167,7 +167,7 @@
             <div class="note-card-header">
                 <div class="note-card-title-row">
                     <h3 class="note-card-title">{{ expense.title }}</h3>
-                    {% if expense.recurrence != 'none' %}<span style="font-size:12px; margin-left:6px;" title="Recurring">&#128260;</span>{% endif %}
+                    {% if expense.recurrence != 'none' %}<span class="recurrence-icon" title="Recurring">&#128260;</span>{% endif %}
                 </div>
             </div>
             <p class="note-card-body" style="-webkit-line-clamp: 2;">
@@ -177,7 +177,7 @@
                 <div class="note-card-info">
                     <span class="note-card-date">{{ expense.date|date:"M d, Y" }}</span>
                 </div>
-                <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent-orange);">&#8377;{{ expense.amount }}</span>
+                <span class="expense-card-amount">&#8377;{{ expense.amount }}</span>
             </div>
         </div>
         {% endfor %}
@@ -192,17 +192,15 @@
     <div class="notes-grid">
         {% for note in recent %}
         <div class="note-card tag-{{ note.color_tag }}">
-            <div class="note-card-header">
-                <div class="note-card-title-row">
-                    <span class="color-tag color-{{ note.color_tag }}"></span>
-                    <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
+            <a href="{% url 'note_detail' note.pk %}" class="note-card-link">
+                <div class="note-card-header">
+                    <div class="note-card-title-row">
+                        <span class="color-tag color-{{ note.color_tag }}"></span>
                         <h3 class="note-card-title">{{ note.title }}</h3>
-                    </a>
-                    {% if note.pinned %}<span class="pin-icon">&#128204;</span>{% endif %}
-                    {% if note.is_shared %}<span style="font-size:12px; margin-left:4px;" title="Shared">&#128279;</span>{% endif %}
+                        {% if note.pinned %}<span class="pin-icon">&#128204;</span>{% endif %}
+                        {% if note.is_shared %}<span class="recurrence-icon" title="Shared">&#128279;</span>{% endif %}
+                    </div>
                 </div>
-            </div>
-            <a href="{% url 'note_detail' note.pk %}" style="text-decoration: none; color: inherit;">
                 <p class="note-card-body">{{ note.body|truncatewords:20 }}</p>
             </a>
             <div class="note-card-meta">
@@ -214,7 +212,7 @@
         </div>
         {% endfor %}
     </div>
-    <div style="text-align: center; margin-top: 8px;">
+    <div class="center-link">
         <a href="{% url 'note_list' %}" class="btn btn-ghost btn-sm">View All Notes &rarr;</a>
     </div>
     {% endif %}
@@ -224,7 +222,7 @@
         <div class="empty-state-icon">&#128221;</div>
         <h2>Nothing here yet</h2>
         <p>Create a note or add an expense to get started.</p>
-        <div style="display: flex; gap: 12px; justify-content: center;">
+        <div class="empty-state-actions">
             <a href="{% url 'expense_create' %}" class="btn btn-ghost">+ Add Expense</a>
             <a href="{% url 'note_create' %}" class="btn btn-primary">+ Create Note</a>
         </div>
@@ -234,23 +232,41 @@
 </div>
 
 <style>
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
     .stat-card {
         background: var(--bg-card);
         border: 1px solid var(--border-glass);
-        border-radius: 14px;
-        padding: 24px;
+        border-radius: var(--radius);
+        padding: 22px;
         text-align: center;
         backdrop-filter: blur(10px);
         box-shadow: var(--shadow-soft);
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     .stat-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-2px);
         box-shadow: var(--shadow-hover);
     }
     .stat-number {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 36px;
+        font-size: 32px;
         font-weight: 700;
         background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
         -webkit-background-clip: text;
@@ -270,6 +286,27 @@
         color: var(--text-muted);
         margin-top: 6px;
     }
+
+    .top-category-row {
+        margin-bottom: 20px;
+    }
+    .top-cat-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--text-secondary);
+        background: rgba(224, 120, 0, 0.06);
+        border: 1px solid rgba(224, 120, 0, 0.12);
+        padding: 6px 16px;
+        border-radius: 50px;
+    }
+    .top-cat-badge strong { color: var(--accent-orange); }
+
+    .color-stats-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
     .color-stat {
         display: flex;
         align-items: center;
@@ -277,52 +314,92 @@
         background: var(--input-bg);
         border: 1px solid var(--border-glass);
         border-radius: 50px;
-        padding: 8px 16px;
+        padding: 6px 14px;
     }
-    .top-cat-badge {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
+    .color-stat-name {
+        font-size: 13px;
         color: var(--text-secondary);
-        background: rgba(224, 120, 0, 0.08);
-        border: 1px solid rgba(224, 120, 0, 0.15);
-        padding: 6px 16px;
-        border-radius: 50px;
     }
-    .top-cat-badge strong { color: var(--accent-orange); }
+
+    .center-link {
+        text-align: center;
+        margin-top: 4px;
+        margin-bottom: 16px;
+    }
+
+    .budget-color-green { color: var(--accent-green); }
+    .budget-color-orange { color: var(--accent-orange); }
+    .budget-color-red { color: #e8203a; }
+
+    .recurrence-icon {
+        font-size: 12px;
+        margin-left: 6px;
+    }
+
+    .expense-card-amount {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        color: var(--accent-orange);
+    }
+
+    .empty-state-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .dash-header-skeleton {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 36px;
+    }
 
     /* CHARTS */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
     .chart-card {
         background: var(--bg-card);
         border: 1px solid var(--border-glass);
         border-radius: var(--radius);
-        padding: 24px;
+        padding: 22px;
         backdrop-filter: blur(10px);
         box-shadow: var(--shadow-soft);
+    }
+    .chart-card-donut {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     .bar-chart {
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        gap: 16px;
+        gap: 14px;
         height: 200px;
         padding-top: 20px;
     }
-    .bar-group { text-align: center; flex: 1; max-width: 60px; }
+    .bar-group { text-align: center; flex: 1; max-width: 56px; }
     .bar {
         height: 160px;
         display: flex;
         align-items: flex-end;
         justify-content: center;
         margin: 4px auto;
-        width: 32px;
+        width: 28px;
     }
     .bar-fill {
         width: 100%;
         height: var(--bar-height);
         background: var(--bar-color);
-        border-radius: 6px 6px 2px 2px;
+        border-radius: 5px 5px 2px 2px;
         animation: growBar 0.8s ease forwards;
-        opacity: 0.85;
+        opacity: 0.8;
         transition: opacity 0.2s;
     }
     .bar-fill:hover { opacity: 1; }
@@ -345,17 +422,17 @@
     }
 
     .donut-chart {
-        width: 180px;
-        height: 180px;
+        width: 170px;
+        height: 170px;
         border-radius: 50%;
         position: relative;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
     .donut-hole {
         position: absolute;
         top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        width: 110px; height: 110px;
+        width: 105px; height: 105px;
         background: var(--bg-card);
         border-radius: 50%;
         display: flex;
@@ -364,11 +441,22 @@
         justify-content: center;
         gap: 2px;
     }
+    .donut-amount {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    .donut-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        color: var(--text-muted);
+    }
     .donut-legend {
         width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
     }
     .legend-item {
         display: flex;
@@ -382,10 +470,14 @@
         border-radius: 50%;
         flex-shrink: 0;
     }
+    .legend-amount {
+        margin-left: auto;
+        font-weight: 600;
+    }
 
     @media (max-width: 768px) {
-        div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
+        .charts-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>

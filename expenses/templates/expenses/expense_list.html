@@ -3,11 +3,14 @@
 {% block content %}
 <!-- SKELETON -->
 <div id="skeleton-expenses">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px;">
+    <div class="dash-header-skeleton">
         <div><div class="skeleton skeleton-title" style="width: 200px; height: 32px;"></div></div>
-        <div style="display:flex;gap:10px;"><div class="skeleton" style="width:80px;height:36px;border-radius:50px;"></div><div class="skeleton" style="width:120px;height:36px;border-radius:50px;"></div></div>
+        <div class="skeleton-row">
+            <div class="skeleton" style="width:80px;height:36px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:120px;height:36px;border-radius:8px;"></div>
+        </div>
     </div>
-    <div style="display:flex;gap:12px;margin-bottom:28px;">
+    <div class="skeleton-filter-row">
         <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
         <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
         <div class="skeleton" style="width:140px;height:36px;border-radius:50px;"></div>
@@ -21,12 +24,12 @@
     <div class="page-header">
         <div>
             <h1 class="page-title"><span class="highlight">Expenses</span></h1>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Track where your money goes</p>
+            <p class="page-subtitle">Track where your money goes</p>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="header-actions">
             <a href="{% url 'expense_export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-ghost btn-sm" title="Download CSV">&#128229; Export</a>
             <a href="{% url 'expense_summary' %}" class="btn btn-ghost btn-sm">Summary</a>
-            <a href="{% url 'expense_create' %}" class="btn btn-primary">+ Add Expense</a>
+            <a href="{% url 'expense_create' %}" class="btn btn-primary btn-sm">+ Add Expense</a>
         </div>
     </div>
 
@@ -35,7 +38,7 @@
     <div class="budget-bar-wrapper">
         <div class="budget-bar-header">
             <span class="budget-bar-title">Monthly Budget</span>
-            <span class="budget-bar-amount" style="color: {% if budget_percentage >= 90 %}#e8203a{% elif budget_percentage >= 75 %}var(--accent-orange){% else %}var(--accent-green){% endif %};">
+            <span class="budget-bar-amount budget-color-{% if budget_percentage >= 90 %}red{% elif budget_percentage >= 75 %}orange{% else %}green{% endif %}">
                 &#8377;{{ monthly_total }} / &#8377;{{ budget_limit }} ({{ budget_percentage }}%)
             </span>
         </div>
@@ -46,18 +49,18 @@
     {% endif %}
 
     <!-- SET BUDGET INLINE -->
-    <div style="margin-bottom: 20px;">
-        <form method="post" action="{% url 'set_budget' %}" style="display:inline-flex; align-items:center; gap:8px;">
+    <div class="budget-set-row">
+        <form method="post" action="{% url 'set_budget' %}" class="budget-set-form">
             {% csrf_token %}
-            <label class="budget-bar-title" style="margin:0;">Set Monthly Budget:</label>
+            <label class="budget-bar-title">Set Monthly Budget:</label>
             <input type="number" name="monthly_limit" class="filter-select" style="width:140px;" placeholder="e.g. 10000" step="100" min="0" value="{% if budget_limit > 0 %}{{ budget_limit }}{% endif %}">
             <button type="submit" class="btn btn-ghost btn-sm">Save</button>
         </form>
     </div>
 
     <!-- FILTERS -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;">
-        <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <div class="filter-row">
+        <form method="get" class="filter-form">
             <input type="text" name="q" class="filter-select" style="width: 200px;" placeholder="Search expenses..." value="{{ query|default:'' }}">
             <select name="category" class="filter-select" onchange="this.form.submit()">
                 <option value="">All Categories</option>
@@ -69,11 +72,11 @@
             <input type="date" name="date_from" class="filter-select" value="{{ date_from }}" placeholder="From" title="From date" onchange="this.form.submit()">
             <input type="date" name="date_to" class="filter-select" value="{{ date_to }}" placeholder="To" title="To date" onchange="this.form.submit()">
             {% if selected_category or selected_month or query or date_from or date_to %}
-            <a href="{% url 'expense_list' %}" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-blue); text-decoration: none;">Clear filters</a>
+            <a href="{% url 'expense_list' %}" class="clear-filters-link">Clear filters</a>
             {% endif %}
         </form>
-        <div style="margin-left: auto;">
-            <span class="note-count"><span class="live-dot" style="width:6px; height:6px; margin-right: 6px;"></span> {{ expenses|length }} expenses &middot; Total: &#8377;{{ total }}</span>
+        <div class="filter-summary">
+            <span class="note-count"><span class="live-dot"></span> {{ expenses|length }} expenses &middot; Total: &#8377;{{ total }}</span>
         </div>
     </div>
 
@@ -85,24 +88,24 @@
                     <th>Title</th>
                     <th>Category</th>
                     <th>Date</th>
-                    <th style="text-align: right;">Amount</th>
-                    <th style="text-align: right;">Actions</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for expense in expenses %}
                 <tr class="expense-row">
                     <td>
-                        <div style="font-weight: 500; color: var(--text-primary);">
+                        <div class="expense-title-cell">
                             {{ expense.title }}
-                            {% if expense.recurrence != 'none' %}<span title="Recurring: {{ expense.get_recurrence_display }}" style="font-size:12px;">&#128260;</span>{% endif %}
+                            {% if expense.recurrence != 'none' %}<span title="Recurring: {{ expense.get_recurrence_display }}" class="recurrence-icon">&#128260;</span>{% endif %}
                         </div>
-                        {% if expense.note %}<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ expense.note|truncatewords:8 }}</div>{% endif %}
+                        {% if expense.note %}<div class="expense-note-cell">{{ expense.note|truncatewords:8 }}</div>{% endif %}
                     </td>
                     <td><span class="category-badge cat-{{ expense.category }}">{{ expense.get_category_display }}</span></td>
                     <td><span class="expense-date">{{ expense.date|date:"M d, Y" }}</span></td>
-                    <td style="text-align: right;"><span class="expense-amount">&#8377;{{ expense.amount }}</span></td>
-                    <td style="text-align: right;">
+                    <td class="text-right"><span class="expense-amount">&#8377;{{ expense.amount }}</span></td>
+                    <td class="text-right">
                         <div class="row-actions">
                             <a href="{% url 'expense_edit' expense.pk %}" class="action-link action-edit">edit</a>
                             <a href="{% url 'expense_delete' expense.pk %}" class="action-link action-delete">delete</a>
@@ -125,21 +128,69 @@
 </div>
 
 <style>
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-top: 4px;
+    }
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .budget-set-row {
+        margin-bottom: 20px;
+    }
+    .budget-set-form {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .budget-color-green { color: var(--accent-green); }
+    .budget-color-orange { color: var(--accent-orange); }
+    .budget-color-red { color: #e8203a; }
+
+    .filter-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        align-items: center;
+    }
+    .filter-form {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .filter-summary {
+        margin-left: auto;
+    }
+    .clear-filters-link {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--accent-blue);
+        text-decoration: none;
+    }
+    .clear-filters-link:hover {
+        text-decoration: underline;
+    }
+
     .filter-select {
-        padding: 8px 14px;
+        padding: 7px 14px;
         background: var(--input-bg);
         border: 1px solid var(--border-glass);
-        border-radius: 50px;
+        border-radius: 8px;
         font-family: 'Inter', sans-serif;
         font-size: 13px;
         color: var(--text-primary);
         outline: none;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     .filter-select:focus {
         border-color: var(--accent-blue);
-        box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.1);
+        box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.08);
     }
 
     .expense-table-wrapper {
@@ -161,39 +212,53 @@
         text-transform: uppercase;
         letter-spacing: 1.5px;
         color: var(--text-muted);
-        padding: 16px 20px;
+        padding: 14px 20px;
         border-bottom: 1px solid var(--border-glass);
         text-align: left;
     }
     .expense-table tbody td {
-        padding: 16px 20px;
+        padding: 14px 20px;
         font-size: 14px;
         border-bottom: 1px solid var(--border-glass);
         vertical-align: middle;
     }
+    .text-right { text-align: right; }
     .expense-row {
         transition: all 0.2s ease;
         animation: fadeInUp 0.3s ease forwards;
     }
     .expense-row:hover {
-        background: rgba(0, 150, 199, 0.03);
+        background: rgba(0, 150, 199, 0.02);
+    }
+
+    .expense-title-cell {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    .expense-note-cell {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+    .recurrence-icon {
+        font-size: 12px;
     }
 
     .category-badge {
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
-        padding: 4px 12px;
+        padding: 3px 12px;
         border-radius: 50px;
         font-weight: 500;
     }
-    .cat-food { background: rgba(224, 120, 0, 0.1); color: var(--accent-orange); }
-    .cat-transport { background: rgba(0, 150, 199, 0.1); color: var(--accent-blue); }
-    .cat-shopping { background: rgba(224, 80, 144, 0.1); color: var(--accent-pink); }
-    .cat-bills { background: rgba(123, 92, 255, 0.1); color: var(--accent-purple); }
-    .cat-entertainment { background: rgba(0, 180, 216, 0.1); color: var(--accent-cyan); }
-    .cat-health { background: rgba(0, 179, 104, 0.1); color: var(--accent-green); }
-    .cat-education { background: rgba(0, 150, 199, 0.1); color: var(--accent-blue); }
-    .cat-other { background: rgba(0, 0, 0, 0.05); color: var(--text-muted); }
+    .cat-food { background: rgba(224, 120, 0, 0.08); color: var(--accent-orange); }
+    .cat-transport { background: rgba(0, 150, 199, 0.08); color: var(--accent-blue); }
+    .cat-shopping { background: rgba(224, 80, 144, 0.08); color: var(--accent-pink); }
+    .cat-bills { background: rgba(123, 92, 255, 0.08); color: var(--accent-purple); }
+    .cat-entertainment { background: rgba(0, 180, 216, 0.08); color: var(--accent-cyan); }
+    .cat-health { background: rgba(0, 179, 104, 0.08); color: var(--accent-green); }
+    .cat-education { background: rgba(0, 150, 199, 0.08); color: var(--accent-blue); }
+    .cat-other { background: rgba(0, 0, 0, 0.04); color: var(--text-muted); }
 
     .expense-date {
         font-family: 'JetBrains Mono', monospace;
@@ -202,13 +267,13 @@
     }
     .expense-amount {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--text-primary);
     }
     .row-actions {
         display: flex;
-        gap: 6px;
+        gap: 4px;
         justify-content: flex-end;
         opacity: 0;
         transition: opacity 0.2s ease;
@@ -217,15 +282,31 @@
         opacity: 1;
     }
 
+    .dash-header-skeleton {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 36px;
+    }
+    .skeleton-row {
+        display: flex;
+        gap: 10px;
+    }
+    .skeleton-filter-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
     @media (max-width: 768px) {
         .expense-table thead { display: none; }
         .expense-table tbody td {
             display: block;
-            padding: 8px 20px;
+            padding: 6px 20px;
             text-align: left !important;
         }
-        .expense-table tbody td:first-child { padding-top: 16px; }
-        .expense-table tbody td:last-child { padding-bottom: 16px; }
+        .expense-table tbody td:first-child { padding-top: 14px; }
+        .expense-table tbody td:last-child { padding-bottom: 14px; }
         .row-actions { opacity: 1; }
     }
 </style>

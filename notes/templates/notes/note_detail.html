@@ -7,17 +7,17 @@
     </div>
 
     <div class="detail-card">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        <div class="detail-tags-row">
             <span class="color-tag color-{{ note.color_tag }}"></span>
-            {% if note.pinned %}<span style="font-size: 14px;">&#128204;</span>{% endif %}
-            {% if note.is_shared %}<span style="font-size: 14px; margin-left: 4px;">&#128279;</span>{% endif %}
+            {% if note.pinned %}<span class="detail-icon">&#128204;</span>{% endif %}
+            {% if note.is_shared %}<span class="detail-icon">&#128279;</span>{% endif %}
         </div>
 
         <h1 class="detail-title">{{ note.title }}</h1>
 
         <div class="detail-meta">
-            <span class="note-card-date">Created {{ note.created_at|date:"M d, Y &middot; h:i A" }}</span>
-            <span class="note-card-date">Updated {{ note.updated_at|date:"M d, Y &middot; h:i A" }}</span>
+            <span class="note-card-date">Created {{ note.created_at|date:"M d, Y" }} &middot; {{ note.created_at|date:"h:i A" }}</span>
+            <span class="note-card-date">Updated {{ note.updated_at|date:"M d, Y" }} &middot; {{ note.updated_at|date:"h:i A" }}</span>
             <span class="word-count">{{ note.word_count }} words</span>
         </div>
 
@@ -27,8 +27,8 @@
         {% if share_url %}
         <div class="share-box">
             <span class="budget-bar-title">Shareable Link</span>
-            <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
-                <input type="text" value="{{ share_url }}" class="form-input" style="font-size: 12px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace;" id="shareUrl" readonly>
+            <div class="share-input-row">
+                <input type="text" value="{{ share_url }}" class="form-input share-url-input" id="shareUrl" readonly>
                 <button type="button" class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.textContent='Copied!';">Copy</button>
             </div>
         </div>
@@ -45,7 +45,7 @@
             <form method="post" action="{% url 'note_toggle_share' note.pk %}" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-ghost btn-sm">
-                    {% if note.is_shared %}&#128274; Unshare{% else %}&#128279; Share{% endif %}
+                    {% if note.is_shared %}Unshare{% else %}Share{% endif %}
                 </button>
             </form>
             <a href="{% url 'note_delete' note.pk %}" class="btn btn-danger btn-sm">Delete</a>
@@ -54,12 +54,32 @@
 </div>
 
 <style>
+    .detail-tags-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+    .detail-icon {
+        font-size: 14px;
+    }
     .share-box {
         margin-top: 24px;
         padding: 16px 20px;
-        background: rgba(0, 150, 199, 0.05);
-        border: 1px solid rgba(0, 150, 199, 0.15);
+        background: rgba(0, 150, 199, 0.04);
+        border: 1px solid rgba(0, 150, 199, 0.1);
         border-radius: var(--radius-sm);
+    }
+    .share-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+    }
+    .share-url-input {
+        font-size: 12px;
+        padding: 8px 12px;
+        font-family: 'JetBrains Mono', monospace;
     }
 </style>
 {% endblock %}
